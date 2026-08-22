@@ -1,24 +1,28 @@
 import type { NextConfig } from "next";
 
 /**
- * The site is intentionally free of server-side features (no route handlers,
- * no server actions, no dynamic rendering), so it can be deployed either as a
- * normal Next.js app (Vercel) or exported to fully static HTML.
+ * This site is deployed to GitHub Pages, which serves plain static files, so
+ * `next build` always produces a fully exported `out/` directory. The stock
+ * Pages workflow in .github/workflows/nextjs.yml runs a bare `next build` and
+ * then uploads `out/`, so the export must not be conditional on an env var —
+ * otherwise the upload step has nothing to publish.
  *
- * To publish on GitHub Pages, build with:
- *   NEXT_STATIC_EXPORT=1 npm run build
- * ...and serve the generated `out/` directory.
+ * The site has no server-side features (no route handlers, no server actions,
+ * no dynamic rendering), so nothing is lost by exporting statically.
+ *
+ * The repository is `macleanl3vin.github.io`, i.e. a user site served from the
+ * domain root, so no `basePath` or `assetPrefix` is needed. If this is ever
+ * moved into a project repo (served from `/<repo>/`), both would have to be set
+ * to that sub-path.
  */
-const isStaticExport = process.env.NEXT_STATIC_EXPORT === "1";
-
 const nextConfig: NextConfig = {
-  ...(isStaticExport ? { output: "export" as const } : {}),
+  output: "export",
   images: {
-    // No remote images are used; keeps static export unblocked.
-    unoptimized: isStaticExport,
+    // Pages cannot run the image optimizer; no remote images are used anyway.
+    unoptimized: true,
   },
-  // Trailing slashes make static hosts (GitHub Pages) resolve nested routes.
-  trailingSlash: isStaticExport,
+  // Trailing slashes make a static host resolve nested routes as directories.
+  trailingSlash: true,
 };
 
 export default nextConfig;

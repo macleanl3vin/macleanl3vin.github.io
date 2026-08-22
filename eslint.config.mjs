@@ -6,7 +6,15 @@ const eslintConfig = [
   ...coreWebVitals,
   ...typescript,
   {
-    ignores: [".next/**", "out/**", "node_modules/**", "next-env.d.ts"],
+    ignores: [
+      ".next/**",
+      "out/**",
+      // Nested too: Claude Code worktrees under .claude/ carry their own
+      // node_modules, which a bare "node_modules/**" pattern would not match.
+      "**/node_modules/**",
+      ".claude/**",
+      "next-env.d.ts",
+    ],
   },
 ];
 

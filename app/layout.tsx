@@ -44,8 +44,10 @@ export const metadata: Metadata = {
     type: "website",
     siteName: site.name,
   },
-  // TODO(MacLean): set `metadataBase` to your deployed origin so Open Graph
-  // image URLs resolve absolutely, and add an og-image once you have one.
+  // Deployed origin, so Open Graph and canonical URLs resolve absolutely.
+  metadataBase: new URL("https://macleanl3vin.github.io"),
+  // TODO(MacLean): add an opengraph-image once you have artwork for it —
+  // links currently preview without a card image.
 };
 
 export const viewport: Viewport = {

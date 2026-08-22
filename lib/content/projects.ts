@@ -19,13 +19,25 @@ export type FigureId =
   | "hetero-graph"
   | "pk-curve"
   | "ddi"
-  | "compartments";
+  | "mechanism";
+
+/**
+ * Equation systems a section can reference. Declared here, alongside
+ * `FigureId`, so the content model stays the source of truth and does not have
+ * to import from the component layer.
+ */
+export type EquationSystem = "denominator" | "reaction-rate" | "reduced";
 
 export type Block =
   | { kind: "prose"; paragraphs: string[] }
   | { kind: "terms"; intro?: string; items: { term: string; detail: string }[] }
   | { kind: "figure"; figure: FigureId; number: string; caption: string }
-  | { kind: "equation"; number: string; caption: string; system: "pk" | "ddi" }
+  | {
+      kind: "equation";
+      number: string;
+      caption: string;
+      system: EquationSystem;
+    }
   | { kind: "pending"; note: string };
 
 export interface ResearchSection {
@@ -173,36 +185,51 @@ export const projects: Project[] = [
           {
             kind: "prose",
             paragraphs: [
-              "The predicted parameters are substituted into a compartmental system. In the single-drug case, a depot compartment releases into plasma at a first-order absorption rate while elimination proceeds through a saturable metabolic term.",
+              "The learned factors are applied inside a compartmental system that evolves drug mass through plasma and hepatic states. The structure is shared: however many compounds a regimen contains, there is one plasma state, one hepatic state and one term per enzyme — not an independent pipeline per drug. That is what makes the drugs able to affect one another at all.",
+              "An enzyme has finite capacity, so everything routed through it competes for the same sites. Rather than treating each pair of drugs as a special case, the framework collects every contribution at an enzyme into a single denominator: each substrate on that enzyme contributes a C/Km term, each inhibitor an I/Ki term. Because metabolism happens in the liver, these are evaluated at hepatic concentration rather than plasma concentration.",
             ],
           },
           {
             kind: "equation",
             number: "01",
             caption:
-              "One-compartment disposition with first-order absorption and saturable metabolism.",
-            system: "pk",
+              "Shared-enzyme denominator — one per enzyme, accumulating every substrate and inhibitor acting on it.",
+            system: "denominator",
           },
           {
             kind: "prose",
             paragraphs: [
-              "Saturable elimination is what makes the interaction case work. Because the metabolic term is Michaelis–Menten rather than first-order, an enzyme has finite capacity — and two substrates routed to the same enzyme necessarily compete for it.",
-              "A competitive inhibitor raises the effective Michaelis constant of the affected pathway in proportion to its own concentration. Since that concentration is itself a state variable being integrated, the interaction is dynamic: it grows as the perpetrator is absorbed and decays as it is cleared.",
+              "Each reaction rate is then the product of three separable pieces: the mechanistic capacity of the enzyme, a bounded learned factor, and the substrate's own term divided by that shared denominator. The first is physiology, the second is what the network is allowed to adjust, and the third is where competition enters.",
+              "Keeping them as distinct factors is deliberate. The network can shift a reaction's throughput within its bounds, but it cannot change the functional form of the competition, and it cannot produce a rate the mechanism does not admit.",
             ],
           },
           {
             kind: "equation",
             number: "02",
             caption:
-              "Competitive inhibition at a shared enzyme — the interaction term is time-varying.",
-            system: "ddi",
+              "Reaction rate — kinetic capacity × bounded learned factor × substrate term over the shared denominator.",
+            system: "reaction-rate",
+          },
+          {
+            kind: "prose",
+            paragraphs: [
+              "Nothing about this formulation is exotic. With a single substrate and a single inhibitor on an enzyme the denominator collapses, algebraically and exactly, to the familiar apparent-Michaelis-constant form — Km scaled by (1 + I/Ki). The general version simply stops requiring that the regimen contain only two drugs.",
+              "That reduced case is what the interactive simulation elsewhere on this site integrates, which is why its curves and the equations above describe the same mechanism rather than two different ones.",
+            ],
+          },
+          {
+            kind: "equation",
+            number: "03",
+            caption:
+              "The two-drug reduction — the case the in-browser simulation integrates.",
+            system: "reduced",
           },
           {
             kind: "figure",
-            figure: "compartments",
+            figure: "mechanism",
             number: "03",
             caption:
-              "Compartmental structure — depot, central plasma compartment and metabolic clearance.",
+              "Mechanistic state flow — several drugs, one plasma state, one hepatic state, one term per shared enzyme.",
           },
         ],
       },

@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import { Label } from "@/components/ui/primitives";
+import type { EquationSystem } from "@/lib/content/projects";
 
 /* --------------------------------------------------------------------------
  * A minimal math layer.
  *
  * Only fractions, italic variables and sub/superscripts are needed, all of
  * which are handled by ~40 lines of CSS in globals.css. That is a far better
- * trade than shipping a full typesetting library for four equations.
+ * trade than shipping a full typesetting library for a handful of equations.
  * ----------------------------------------------------------------------- */
 
 function V({
@@ -68,56 +69,8 @@ function Deriv({ of, sub }: { of: string; sub?: ReactNode }) {
 }
 
 /* --------------------------------------------------------------------------
- * The two systems referenced on the research page
+ * Systems referenced on the research page
  * ----------------------------------------------------------------------- */
-
-/**
- * One-compartment model, first-order absorption into a saturable
- * elimination pathway.
- */
-export function PkEquations() {
-  return (
-    <div className="thin-scroll flex flex-col gap-5 overflow-x-auto">
-      <div className="math">
-        <Deriv of="A" sub="d" />
-        <Op>=</Op>
-        <Op>−</Op>
-        <V sub="a">k</V>
-        <V sub="d">A</V>
-      </div>
-
-      <div className="math">
-        <Deriv of="C" />
-        <Op>=</Op>
-        <Frac
-          over={
-            <>
-              <V sub="a">k</V>
-              <V sub="d">A</V>
-            </>
-          }
-          under={<V>V</V>}
-        />
-        <Op>−</Op>
-        <Frac
-          over={
-            <>
-              <V sub="max">V</V>
-              <V>C</V>
-            </>
-          }
-          under={
-            <>
-              <V sub="m">K</V>
-              <Op>+</Op>
-              <V>C</V>
-            </>
-          }
-        />
-      </div>
-    </div>
-  );
-}
 
 /**
  * Competitive inhibition: the perpetrator concentration raises the apparent
@@ -125,7 +78,7 @@ export function PkEquations() {
  */
 export function DdiEquations() {
   return (
-    <div className="thin-scroll flex flex-col gap-5 overflow-x-auto">
+    <div className="math-fit flex flex-col gap-5" style={{ ["--eq-w" as string]: 27 }}>
       <div className="math">
         <Deriv of="C" sub="A" />
         <Op>=</Op>
@@ -180,7 +133,8 @@ export function DdiEquations() {
 }
 
 /* --------------------------------------------------------------------------
- * PharML PK — the two relations the ODE tab is built around.
+ * PharML PK — the two relations the ODE tab and the research write-up
+ * are both built around.
  *
  * `--eq-w` is the equation's natural width in em. The `.math-fit` wrapper uses
  * it to scale the type down with the container so a wide expression shrinks to
@@ -261,21 +215,55 @@ export function ReactionRateEquation() {
   );
 }
 
-const legends: Record<"pk" | "ddi", { sym: ReactNode; def: string }[]> = {
-  pk: [
-    { sym: <V sub="d">A</V>, def: "Amount at absorption site" },
-    { sym: <V>C</V>, def: "Plasma concentration" },
-    { sym: <V sub="a">k</V>, def: "Absorption rate constant" },
-    { sym: <V sub="max">V</V>, def: "Maximum metabolic rate" },
-    { sym: <V sub="m">K</V>, def: "Michaelis constant" },
-    { sym: <V>V</V>, def: "Apparent volume of distribution" },
+const legends: Record<EquationSystem, { sym: ReactNode; def: string }[]> = {
+  denominator: [
+    { sym: <V sub="enz">D</V>, def: "Shared-enzyme denominator" },
+    {
+      sym: (
+        <V sup="liver" sub="j">
+          C
+        </V>
+      ),
+      def: "Hepatic concentration of substrate j",
+    },
+    { sym: <V sub="m,j">K</V>, def: "Michaelis constant of substrate j" },
+    {
+      sym: (
+        <V sup="liver" sub="k">
+          I
+        </V>
+      ),
+      def: "Hepatic concentration of inhibitor k",
+    },
+    { sym: <V sub="i,k">K</V>, def: "Inhibition constant of inhibitor k" },
   ],
-  ddi: [
+  "reaction-rate": [
+    { sym: <V sub="r">v</V>, def: "Rate of reaction r" },
+    { sym: <V sub="cat,r">K</V>, def: "Turnover number" },
+    { sym: <V sub="r">[E]</V>, def: "Enzyme abundance" },
+    { sym: <V sub="GNN,r">f</V>, def: "Bounded learned modulation factor" },
+    {
+      sym: (
+        <V sup="liver" sub="sub,r">
+          C
+        </V>
+      ),
+      def: "Hepatic concentration of the substrate",
+    },
+    { sym: <V sub="enz(r)">D</V>, def: "Denominator of r's enzyme" },
+  ],
+  reduced: [
     { sym: <V sub="A">C</V>, def: "Victim concentration" },
     { sym: <V sub="B">C</V>, def: "Perpetrator concentration" },
     { sym: <V sub="i">K</V>, def: "Inhibition constant" },
     { sym: <V sub="e,B">k</V>, def: "Perpetrator elimination rate" },
   ],
+};
+
+const systems: Record<EquationSystem, () => ReactNode> = {
+  denominator: SharedDenominatorEquation,
+  "reaction-rate": ReactionRateEquation,
+  reduced: DdiEquations,
 };
 
 /**
@@ -289,12 +277,14 @@ export function EquationBlock({
 }: {
   number: string;
   caption: string;
-  system: "pk" | "ddi";
+  system: EquationSystem;
 }) {
+  const Body = systems[system];
+
   return (
     <figure>
       <div className="rounded-lg border border-line bg-surface px-5 py-7 sm:px-8 sm:py-9">
-        {system === "pk" ? <PkEquations /> : <DdiEquations />}
+        <Body />
 
         <dl className="mt-8 grid gap-x-8 gap-y-3 border-t border-line-faint pt-6 sm:grid-cols-2">
           {legends[system].map((row, i) => (

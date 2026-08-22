@@ -1,11 +1,11 @@
 import { ArchitectureDiagram } from "@/components/diagrams/architecture-diagram";
 import { HeteroGraph } from "@/components/diagrams/hetero-graph";
 import {
-  CompartmentDiagram,
   ConcentrationPlot,
   DdiSchematic,
   type Series,
 } from "@/components/diagrams/plots";
+import { MechanismDiagram } from "@/components/diagrams/mechanism-diagram";
 import { EquationBlock } from "@/components/diagrams/equations";
 import { Figure, Label, Pending } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/reveal";
@@ -92,8 +92,8 @@ function FigureBody({ id }: { id: FigureId }) {
       return <ArchitectureDiagram />;
     case "hetero-graph":
       return <HeteroGraph variant="interactive" />;
-    case "compartments":
-      return <CompartmentDiagram />;
+    case "mechanism":
+      return <MechanismDiagram />;
     case "ddi":
       return (
         <div className="flex flex-col gap-8">

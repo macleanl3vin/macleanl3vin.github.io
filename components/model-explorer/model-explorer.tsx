@@ -2,8 +2,8 @@
 
 import { useMemo, useRef, useState } from "react";
 import { HeteroGraph } from "@/components/diagrams/hetero-graph";
-import { ConcentrationPlot, DdiSchematic, CompartmentDiagram, type Series } from "@/components/diagrams/plots";
-import { PkEquations, DdiEquations } from "@/components/diagrams/equations";
+import { ConcentrationPlot, DdiSchematic, type Series } from "@/components/diagrams/plots";
+import { OdePanel } from "./ode-panel";
 import { Label } from "@/components/ui/primitives";
 import { auc, cmax, simulateDdi, type DdiParams } from "@/lib/pk";
 
@@ -174,29 +174,7 @@ export function ModelExplorer() {
 
         {/* ODE */}
         <Panel id="ode" active={tab === "ode"}>
-          <PanelHead
-            title="Mechanistic system"
-            body="The network predicts coefficients; these equations produce the dynamics. Saturable elimination is what makes competition between two substrates possible."
-          />
-
-          <div className="mt-7 grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <div className="rounded-lg border border-line bg-base px-5 py-6">
-              <Label className="label-bright">SINGLE DRUG</Label>
-              <div className="mt-5">
-                <PkEquations />
-              </div>
-            </div>
-            <div className="rounded-lg border border-line bg-base px-5 py-6">
-              <Label className="label-bright">COMPETITIVE INHIBITION</Label>
-              <div className="mt-5">
-                <DdiEquations />
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-7 rounded-lg border border-line bg-base px-4 py-6 sm:px-6">
-            <CompartmentDiagram />
-          </div>
+          <OdePanel />
         </Panel>
 
         {/* PK */}

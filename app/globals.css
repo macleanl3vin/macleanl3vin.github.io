@@ -204,6 +204,43 @@ body {
   }
 }
 
+/* Mechanistic process diagram — same idea, applied to its SVG type scale. */
+.mech-label {
+  font-size: 17px;
+}
+
+.mech-sub {
+  font-size: 12px;
+}
+
+.mech-note {
+  font-size: 13px;
+}
+
+/* The denominator plate holds a long expression, so it runs a notch smaller
+   than the box labels to stay inside its plate at both layouts. */
+.mech-eq {
+  font-size: 17px;
+}
+
+@media (max-width: 640px) {
+  .mech-label {
+    font-size: 21px;
+  }
+
+  .mech-sub {
+    font-size: 15px;
+  }
+
+  .mech-note {
+    font-size: 15px;
+  }
+
+  .mech-eq {
+    font-size: 19px;
+  }
+}
+
 /* ==========================================================================
    DIAGRAM ANIMATION
    Long, slow, low-amplitude. Everything here is decorative: with motion
@@ -334,6 +371,34 @@ body {
 .math .frac > span:last-child {
   padding-top: 0.1em;
   padding-inline: 0.28em;
+}
+
+.math .sum {
+  font-size: 1.32em;
+  line-height: 0.8;
+  font-style: normal;
+}
+
+.math .sum sub {
+  font-size: 0.42em;
+}
+
+/* --------------------------------------------------------------------------
+   Equation fitting.
+
+   `.math` is nowrap, so a wide expression would otherwise overflow. Scaling
+   the type with the container's inline size keeps every equation inside its
+   card at any width — no scrollbars, no clipping. `--eq-w` is the equation's
+   natural width in em, set per equation at the call site.
+   ----------------------------------------------------------------------- */
+
+.math-fit {
+  container-type: inline-size;
+  width: 100%;
+}
+
+.math-fit .math {
+  font-size: min(var(--eq-max, 1.22rem), calc(100cqi / var(--eq-w, 20)));
 }
 
 /* ==========================================================================

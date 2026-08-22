@@ -9,11 +9,29 @@ import { Label } from "@/components/ui/primitives";
  * trade than shipping a full typesetting library for four equations.
  * ----------------------------------------------------------------------- */
 
-function V({ children, sub }: { children: ReactNode; sub?: ReactNode }) {
+function V({
+  children,
+  sub,
+  sup,
+}: {
+  children: ReactNode;
+  sub?: ReactNode;
+  sup?: ReactNode;
+}) {
   return (
     <span className="v">
       {children}
+      {sup ? <sup>{sup}</sup> : null}
       {sub ? <sub>{sub}</sub> : null}
+    </span>
+  );
+}
+
+/** Summation with an index below-right, kept inline so it never adds height. */
+function Sum({ index }: { index: ReactNode }) {
+  return (
+    <span className="sum">
+      ∑<sub>{index}</sub>
     </span>
   );
 }
@@ -156,6 +174,88 @@ export function DdiEquations() {
         <Op>−</Op>
         <V sub="e,B">k</V>
         <V sub="B">C</V>
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------------------------------------------------
+ * PharML PK — the two relations the ODE tab is built around.
+ *
+ * `--eq-w` is the equation's natural width in em. The `.math-fit` wrapper uses
+ * it to scale the type down with the container so a wide expression shrinks to
+ * fit instead of producing a scrollbar.
+ * ----------------------------------------------------------------------- */
+
+/**
+ * Shared-enzyme denominator: every substrate on the enzyme contributes a
+ * C/Km term, every inhibitor an I/Ki term, all evaluated at liver
+ * concentration. One denominator per enzyme, not per drug.
+ */
+export function SharedDenominatorEquation() {
+  return (
+    <div className="math-fit" style={{ ["--eq-w" as string]: 19 }}>
+      <div className="math">
+        <V sub="enz">D</V>
+        <Op>=</Op>
+        <span>1</span>
+        <Op>+</Op>
+        <Sum index="j" />
+        <Frac
+          over={
+            <V sup="liver" sub="j">
+              C
+            </V>
+          }
+          under={<V sub="m,j">K</V>}
+        />
+        <Op>+</Op>
+        <Sum index="k" />
+        <Frac
+          over={
+            <V sup="liver" sub="k">
+              I
+            </V>
+          }
+          under={<V sub="i,k">K</V>}
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Reaction rate: mechanistic kinetic capacity × bounded learned factor ×
+ * substrate term over the shared-enzyme denominator. The three parts are
+ * spaced so that separation stays visible.
+ */
+export function ReactionRateEquation() {
+  return (
+    <div className="math-fit" style={{ ["--eq-w" as string]: 21 }}>
+      <div className="math">
+        <V sub="r">v</V>
+        <Op>=</Op>
+        <V sub="cat,r">K</V>
+        <V sub="r">[E]</V>
+        <Op>·</Op>
+        {/* The one learned quantity in the expression — violet, per the
+            site's accent semantics. */}
+        <span style={{ color: "var(--color-violet)" }}>
+          <V sub="GNN,r">f</V>
+        </span>
+        <Op>·</Op>
+        <Frac
+          over={
+            <>
+              <V sup="liver" sub="sub,r">
+                C
+              </V>
+              <Op>∕</Op>
+              <V sub="m,r">K</V>
+            </>
+          }
+          under={<V sub="enz(r)">D</V>}
+        />
       </div>
     </div>
   );

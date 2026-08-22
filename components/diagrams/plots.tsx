@@ -320,7 +320,14 @@ export function DdiSchematic({ className = "" }: { className?: string }) {
   );
 }
 
-function NodeBox({
+/**
+ * Shared box primitive for the SVG schematics.
+ *
+ * `labelClass` / `subClass` let a caller move the type scale into CSS so it can
+ * respond to viewport width; omitting them keeps the original fixed sizes, so
+ * existing diagrams are unaffected.
+ */
+export function NodeBox({
   x,
   y,
   w,
@@ -329,6 +336,8 @@ function NodeBox({
   sub,
   color,
   emphasis = false,
+  labelClass,
+  subClass,
 }: {
   x: number;
   y: number;
@@ -338,6 +347,8 @@ function NodeBox({
   sub: string;
   color: string;
   emphasis?: boolean;
+  labelClass?: string;
+  subClass?: string;
 }) {
   return (
     <g>
@@ -353,20 +364,30 @@ function NodeBox({
         strokeWidth="1.2"
       />
       <text
+        className={labelClass}
         x={x + w / 2}
         y={y + 24}
         textAnchor="middle"
         fill="var(--color-ink)"
-        style={{ fontFamily: "var(--font-mono)", fontSize: 17, letterSpacing: "0.1em" }}
+        style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: labelClass ? undefined : 17,
+          letterSpacing: "0.1em",
+        }}
       >
         {label}
       </text>
       <text
+        className={subClass}
         x={x + w / 2}
         y={y + 41}
         textAnchor="middle"
         fill="var(--color-faint)"
-        style={{ fontFamily: "var(--font-mono)", fontSize: 13, letterSpacing: "0.12em" }}
+        style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: subClass ? undefined : 13,
+          letterSpacing: "0.12em",
+        }}
       >
         {sub}
       </text>

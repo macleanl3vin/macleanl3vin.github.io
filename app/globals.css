@@ -1,0 +1,445 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   DESIGN SYSTEM — dark scientific surfaces
+   Tokens are declared once here via Tailwind v4's @theme so that both
+   utility classes (bg-surface, text-cyan, border-line) and raw CSS
+   (var(--color-cyan)) resolve to the same values.
+   ========================================================================== */
+
+@theme {
+  /* --- surfaces -------------------------------------------------------- */
+  --color-base: #080a0d;
+  --color-surface: #0d1117;
+  --color-elevated: #121821;
+  --color-raised: #171f2a;
+
+  /* --- lines ----------------------------------------------------------- */
+  --color-line: #202936;
+  --color-line-strong: #2c3849;
+  --color-line-faint: #171e29;
+
+  /* --- text ------------------------------------------------------------ */
+  --color-ink: #f1f5f9;
+  --color-muted: #8b98a8;
+  --color-faint: #5c6878;
+
+  /* --- accents ---------------------------------------------------------
+     Semantics used throughout the site:
+       cyan   → computation, data, model outputs
+       teal   → molecular / biological / mechanistic systems
+       violet → machine learning, neural networks
+     ------------------------------------------------------------------- */
+  --color-cyan: #5dd9f5;
+  --color-teal: #53d6c2;
+  --color-violet: #8577ff;
+
+  --color-cyan-dim: #2e7f92;
+  --color-teal-dim: #2b7d72;
+  --color-violet-dim: #4b4499;
+
+  /* --- typography ------------------------------------------------------ */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* --- motion ---------------------------------------------------------- */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* --- rhythm ----------------------------------------------------------
+     Section spacing is deliberately large; the shell width keeps body
+     measure readable while allowing wide visual areas to breach it.
+     `--container-*` is the namespace Tailwind's max-w-* utilities read.
+     ------------------------------------------------------------------- */
+  --container-shell: 76rem;
+  --container-measure: 34rem;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+* {
+  border-color: var(--color-line);
+  min-width: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Sticky nav is 61px tall; anchor targets clear it plus breathing room. */
+  scroll-padding-top: 7rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-base);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Belt-and-braces against horizontal overflow from wide diagrams. */
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: color-mix(in oklab, var(--color-cyan) 26%, transparent);
+  color: var(--color-ink);
+}
+
+/* Visible, consistent focus for every interactive element. */
+:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Numerals should line up in tables, metadata rows and figures. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   TYPOGRAPHIC PRIMITIVES
+   ========================================================================== */
+
+/* Small uppercase monospace annotation — the site's "scientific label"
+   language. Used for section eyebrows, figure captions, metadata keys. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  font-weight: 500;
+}
+
+.label-bright {
+  color: var(--color-muted);
+}
+
+.display {
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+}
+
+.prose-measure {
+  max-width: var(--container-measure);
+}
+
+/* ==========================================================================
+   BACKGROUND TEXTURE
+   Near-invisible plotting grid. The page must read correctly without it.
+   ========================================================================== */
+
+.grid-texture {
+  background-image:
+    linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.16;
+}
+
+.dot-texture {
+  background-image: radial-gradient(
+    var(--color-line-strong) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  opacity: 0.3;
+}
+
+/* ==========================================================================
+   SCROLL REVEAL
+   Opacity + a short vertical translate, driven by IntersectionObserver.
+   Elements are visible by default so the site degrades safely if JS or the
+   observer never runs.
+   ========================================================================== */
+
+.reveal {
+  opacity: 1;
+  transform: none;
+}
+
+/* Only hide once JS has confirmed it can animate. */
+[data-reveal-ready="true"] .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.7s var(--ease-out-quint),
+    transform 0.7s var(--ease-out-quint);
+}
+
+[data-reveal-ready="true"] .reveal[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ==========================================================================
+   DIAGRAM ANIMATION
+   Long, slow, low-amplitude. Everything here is decorative: with motion
+   disabled the diagrams still render in their complete, final state.
+   ========================================================================== */
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    r: var(--node-r, 4);
+  }
+  50% {
+    opacity: 1;
+    r: calc(var(--node-r, 4) * 1.16);
+  }
+}
+
+@keyframes edge-pulse {
+  0% {
+    stroke-dashoffset: var(--dash-len, 120);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0.55;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes trace-in {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -5px, 0);
+  }
+}
+
+.anim-breathe {
+  animation: breathe var(--dur, 7s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.anim-drift {
+  animation: drift var(--dur, 14s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.anim-pulse-edge {
+  animation: edge-pulse var(--dur, 6s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Figure lines that draw themselves in when scrolled into view. */
+.trace {
+  stroke-dasharray: var(--len, 600);
+  stroke-dashoffset: var(--len, 600);
+}
+
+[data-shown="true"] .trace {
+  animation: trace-in 1.5s var(--ease-out-quint) forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+/* ==========================================================================
+   INLINE MATHEMATICS
+   A very small hand-rolled math layer. Only fractions, sub/superscripts and
+   italic variables are needed, which is far cheaper than shipping KaTeX.
+   ========================================================================== */
+
+.math {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34em;
+  color: var(--color-ink);
+}
+
+.math var,
+.math .v {
+  font-style: italic;
+  font-family: inherit;
+}
+
+.math .op {
+  color: var(--color-muted);
+  font-style: normal;
+  padding-inline: 0.06em;
+}
+
+.math sub,
+.math sup {
+  font-size: 0.62em;
+  font-style: normal;
+  letter-spacing: 0.01em;
+}
+
+.math .frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1.15;
+}
+
+.math .frac > span:first-child {
+  padding-inline: 0.28em;
+  border-bottom: 1px solid var(--color-line-strong);
+  padding-bottom: 0.1em;
+}
+
+.math .frac > span:last-child {
+  padding-top: 0.1em;
+  padding-inline: 0.28em;
+}
+
+/* ==========================================================================
+   MICROINTERACTIONS
+   ========================================================================== */
+
+/* Directional arrow that nudges on hover/focus of its parent. */
+.arrow-shift {
+  display: inline-block;
+  transition: transform 0.3s var(--ease-out-quint);
+}
+
+.group:hover .arrow-shift,
+.group:focus-visible .arrow-shift {
+  transform: translateX(3px);
+}
+
+.arrow-shift-diag {
+  display: inline-block;
+  transition: transform 0.3s var(--ease-out-quint);
+}
+
+.group:hover .arrow-shift-diag,
+.group:focus-visible .arrow-shift-diag {
+  transform: translate(2px, -2px);
+}
+
+/* Understated animated underline for inline links. */
+.underline-grow {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.35s var(--ease-out-quint);
+  padding-bottom: 1px;
+}
+
+.underline-grow:hover,
+.underline-grow:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Very subtle cursor lighting, scoped to individual panels only. */
+.cursor-light {
+  position: relative;
+  isolation: isolate;
+}
+
+.cursor-light::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s var(--ease-out-quint);
+  background: radial-gradient(
+    380px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklab, var(--color-cyan) 7%, transparent),
+    transparent 68%
+  );
+}
+
+.cursor-light:hover::before {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   SCROLLBAR
+   ========================================================================== */
+
+@supports (scrollbar-width: thin) {
+  .thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+}
+
+.thin-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 3px;
+}
+
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   Every animation above is decorative, so all of them are simply stopped and
+   their end state is forced.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .trace,
+  [data-shown="true"] .trace {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+  }
+
+  [data-reveal-ready="true"] .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .anim-breathe,
+  .anim-drift {
+    animation: none !important;
+    opacity: 0.85;
+  }
+
+  /* Travelling edge pulses carry no information — remove them entirely. */
+  .anim-pulse-edge {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}

@@ -66,10 +66,11 @@ export default function AboutPage() {
                 <Reveal delay={60}>
                   <p>
                     The approach I find most productive is to let each method do
-                    what it is good at. A network handles the structure-dependent
-                    part and predicts parameters; a differential-equation system
-                    handles the dynamics. The physics stays in the model, and the
-                    chemistry gets learned.
+                    what it is good at. A network reads the context — patient,
+                    regimen, and the biological mechanism joining them — and
+                    emits bounded adjustments; a differential-equation system
+                    handles the dynamics. The mechanism stays in charge of what
+                    is possible, and the learning happens inside those limits.
                   </p>
                 </Reveal>
                 <Reveal delay={120}>

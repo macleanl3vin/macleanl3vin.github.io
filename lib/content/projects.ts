@@ -102,9 +102,9 @@ export const projects: Project[] = [
             intro: "The framework is built around three constraints.",
             items: [
               {
-                term: "Structure must enter the model",
+                term: "Context must enter the model",
                 detail:
-                  "Predictions should depend on what a molecule actually is, not on a per-compound parameter table.",
+                  "Predictions should depend on the patient, the regimen and the biology connecting them — not on a per-compound parameter table fitted in isolation.",
               },
               {
                 term: "Dynamics must stay mechanistic",
@@ -128,8 +128,8 @@ export const projects: Project[] = [
           {
             kind: "prose",
             paragraphs: [
-              "PharML PK splits the problem along the line where each method is strongest. A graph neural network handles the part that depends on chemistry — mapping molecular structure to disposition parameters. A mechanistic ODE system handles the part that depends on time — integrating those parameters into concentration trajectories.",
-              "The learned component never predicts concentrations directly. It predicts the coefficients of the differential equations, and the equations do the rest. This keeps the temporal behaviour physically constrained: mass is conserved, concentrations stay non-negative, and the shape of every curve is one the mechanism can actually produce.",
+              "PharML PK splits the problem along the line where each method is strongest. A graph neural network handles the part that depends on context — reading a heterogeneous graph of the patient, the administered drugs and the biological mechanism connecting them. A mechanistic ODE system handles the part that depends on time.",
+              "The learned component never predicts concentrations directly, and it does not invent kinetic constants from nothing. It emits bounded adjustment factors that modulate reaction, clearance, absorption and disposition terms already present in the mechanism. The equations do the rest. This keeps the temporal behaviour physically constrained: mass is conserved, concentrations stay non-negative, and the shape of every curve is one the mechanism can actually produce.",
               "Because the ODE solve is differentiable, error measured on the concentration–time output can be propagated back through the solver into the network weights. The model is therefore trained end-to-end on the quantity that matters, while the inductive bias of the mechanism is preserved.",
             ],
           },
@@ -137,7 +137,8 @@ export const projects: Project[] = [
             kind: "figure",
             figure: "architecture",
             number: "01",
-            caption: "Hybrid model architecture — structure to exposure.",
+            caption:
+              "Hybrid model architecture — context graph to dynamic exposure.",
           },
         ],
       },
@@ -150,8 +151,8 @@ export const projects: Project[] = [
             kind: "prose",
             paragraphs: [
               "The system is represented as a heterogeneous graph. Rather than a single molecular graph, nodes carry distinct types — patient, administration event, drug, reaction, enzyme, metabolite, compartment — and edges carry the relation between them. A drug node connects to a reaction it undergoes; that reaction connects to the enzyme that catalyzes it and to the metabolite it produces.",
-              "Message passing runs over this typed structure with relation-specific transformations, so an edge representing catalysis is not treated the same way as an edge representing distribution into a compartment. Molecular nodes are initialized from atom- and bond-level features, giving the network access to the chemistry beneath each compound.",
-              "Readout produces the parameters the mechanistic system needs: absorption and elimination rates, apparent volumes, and the kinetic constants governing each enzymatic reaction.",
+              "Message passing runs over this typed structure with relation-specific transformations, so an edge representing catalysis is not treated the same way as an edge representing distribution into a compartment.",
+              "Readout produces bounded reaction and disposition factors — multiplicative adjustments constrained to a plausible range, applied to the reaction, clearance, absorption and disposition terms the mechanistic system already defines. The network shifts those terms within limits; it does not originate them, and it cannot move them somewhere the mechanism does not permit.",
             ],
           },
           {
@@ -247,9 +248,14 @@ export const projects: Project[] = [
                   "Enzyme induction, mechanism-based inactivation, transporter-mediated interactions and protein-binding displacement are not represented by a competitive term alone.",
               },
               {
-                term: "Coverage of chemical space",
+                term: "Coverage of the training context",
                 detail:
-                  "A structure-to-parameter map is only as general as the compounds it was trained on. Extrapolation to chemistry unlike the training distribution should be treated as unreliable.",
+                  "Learned factors are only as general as the drugs, enzymes and pathways represented during training. A regimen whose mechanism graph looks unlike anything seen before should be treated as out of distribution.",
+              },
+              {
+                term: "No structural generalization yet",
+                detail:
+                  "Because the model reads a mechanism graph rather than molecular structure, a genuinely novel compound needs its pathway context supplied. Inferring that context from chemistry is future work, not a current capability.",
               },
               {
                 term: "Population variability",
@@ -273,6 +279,11 @@ export const projects: Project[] = [
           {
             kind: "terms",
             items: [
+              {
+                term: "Structure-informed parameter priors",
+                detail:
+                  "Extending the input side so molecular structure and enzyme context can supply biochemical parameter priors to the mechanistic simulation — the natural next stage, and not part of the model as it stands.",
+              },
               {
                 term: "Physiologically-based compartments",
                 detail:

@@ -89,8 +89,8 @@ export function FeaturedResearch() {
                 <ArchitectureDiagram className="mt-7" />
 
                 <p className="label mt-7 border-t border-line-faint pt-5 leading-relaxed">
-                  FIG. 01 — Hybrid model architecture: learned parameters,
-                  mechanistic dynamics
+                  FIG. 01 — Hybrid model architecture: bounded learned
+                  modulation, mechanistic dynamics
                 </p>
               </div>
             </div>

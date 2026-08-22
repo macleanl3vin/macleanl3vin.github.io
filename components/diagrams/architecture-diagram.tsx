@@ -5,16 +5,31 @@ import { Label } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/reveal";
 
 /* --------------------------------------------------------------------------
- * PharML PK architecture: structure → graph → learned parameters → mechanism
- * → exposure → interaction.
+ * PharML PK architecture, as currently implemented:
+ *
+ *   heterogeneous context graph → GNN → bounded reaction/disposition factors
+ *   → mechanistic ODE system → dynamic PK outputs (trajectories + DDI)
+ *
+ * The scientific point the diagram has to carry: the network learns *bounded
+ * adjustments inside* a mechanistic model. It does not replace the mechanism,
+ * and it does not currently infer kinetics from raw molecular structure — that
+ * is a research direction, shown separately below the numbered pipeline so the
+ * two are never conflated.
  *
  * Built as HTML modules with SVG connectors rather than one large SVG, so the
  * labels reflow and remain legible at every breakpoint instead of scaling into
  * illegibility on a phone.
  *
- * Accent semantics: teal = molecular, violet = learned, cyan = mechanistic
- * and output.
+ * Accent semantics: teal = biological context, violet = learned, cyan =
+ * mechanistic and output.
  * ----------------------------------------------------------------------- */
+
+type Output = {
+  id: string;
+  title: string;
+  detail: string;
+  glyph: ReactNode;
+};
 
 type Stage = {
   id: string;
@@ -24,6 +39,8 @@ type Stage = {
   detail: string;
   accent: Accent;
   glyph: ReactNode;
+  /** Present on the terminal stage: results that branch off the simulation. */
+  outputs?: Output[];
 };
 
 const g = {
@@ -102,76 +119,93 @@ const DdiGlyph = (
   </svg>
 );
 
+/** One simulation, two results — the terminal stage's branch. */
+const BranchGlyph = (
+  <svg viewBox="0 0 28 28" aria-hidden="true" className="size-7">
+    <path {...g} d="M14 8 V 13 M6.5 13 H 21.5 M6.5 13 V 18 M21.5 13 V 18" strokeOpacity="0.7" />
+    <circle cx="14" cy="5.5" r="2.4" fill="currentColor" stroke="none" />
+    <circle cx="6.5" cy="21" r="2.4" fill="currentColor" stroke="none" />
+    <circle cx="21.5" cy="21" r="2.4" fill="currentColor" stroke="none" />
+  </svg>
+);
+
 /* ---- stages ------------------------------------------------------------- */
 
 const stages: Stage[] = [
   {
-    id: "structure",
-    index: "01",
-    kind: "Input",
-    title: "Molecular Structure",
-    detail: "Atoms, bonds and substructure for every compound in the regimen.",
-    accent: "teal",
-    glyph: MoleculeGlyph,
-  },
-  {
     id: "graph",
-    index: "02",
-    kind: "Representation",
+    index: "01",
+    kind: "Context",
     title: "Heterogeneous Graph",
     detail:
-      "Typed nodes — drug, enzyme, reaction, metabolite, compartment — joined by typed relations.",
+      "Structured patient, drug and mechanism context — administration, enzymes, reactions, metabolites and compartments, joined by typed biological relations.",
     accent: "teal",
     glyph: GraphGlyph,
   },
   {
     id: "gnn",
-    index: "03",
+    index: "02",
     kind: "Learned",
     title: "Graph Neural Network",
-    detail: "Relation-specific message passing over the typed structure.",
+    detail:
+      "Relation-specific message passing over the patient–drug–mechanism graph, yielding context-dependent representations.",
     accent: "violet",
     glyph: NetworkGlyph,
   },
   {
-    id: "params",
-    index: "04",
+    id: "factors",
+    index: "03",
     kind: "Learned",
-    title: "Disposition Parameters",
+    title: "Reaction & Disposition Factors",
     detail:
-      "Absorption and elimination rates, apparent volumes, and enzyme kinetic constants.",
+      "Bounded learned adjustments to reaction, clearance, absorption and disposition behavior — modulating the mechanism rather than replacing it.",
     accent: "violet",
     glyph: ParamGlyph,
   },
   {
     id: "ode",
-    index: "05",
+    index: "04",
     kind: "Mechanistic",
     title: "Mechanistic ODE System",
     detail:
-      "Compartmental equations integrated forward — mass-conserving and differentiable.",
+      "Mass-balanced simulation of absorption, distribution, metabolism, elimination and interacting pathways over time.",
     accent: "cyan",
     glyph: OdeGlyph,
   },
   {
-    id: "curve",
-    index: "06",
+    id: "outputs",
+    index: "05",
     kind: "Output",
-    title: "Concentration vs Time",
-    detail: "Plasma trajectories for each compound over the dosing horizon.",
+    title: "Dynamic PK Outputs",
+    detail: "Two distinct readouts of the same mechanistic simulation.",
     accent: "cyan",
-    glyph: CurveGlyph,
+    glyph: BranchGlyph,
+    outputs: [
+      {
+        id: "curve",
+        title: "Concentration + Metabolite vs. Time",
+        detail: "Parent and metabolite trajectories across the dosing horizon.",
+        glyph: CurveGlyph,
+      },
+      {
+        id: "ddi",
+        title: "Drug–Drug Interaction Analysis",
+        detail: "Exposure shift under co-administration on a shared pathway.",
+        glyph: DdiGlyph,
+      },
+    ],
   },
-  {
-    id: "ddi",
-    index: "07",
-    kind: "Analysis",
-    title: "Drug–Drug Interaction",
-    detail:
-      "Exposure shift when two substrates compete for the same enzyme.",
-    accent: "cyan",
-    glyph: DdiGlyph,
-  },
+];
+
+/**
+ * Research direction — deliberately outside the numbered pipeline above.
+ * Predicting biochemical parameters from molecular structure is not part of
+ * the current implementation, and the styling has to keep saying so.
+ */
+const futureStages = [
+  "Molecular Structure + Enzyme Context",
+  "Biochemical Parameter Priors",
+  "Mechanistic PK Simulation",
 ];
 
 /** Thin connector with an arrowhead; draws itself in on reveal. */
@@ -202,6 +236,97 @@ function Connector({ accent }: { accent: Accent }) {
         />
       </svg>
     </div>
+  );
+}
+
+/**
+ * Bracket that splits the flow into two parallel outputs. Drawn with borders
+ * rather than SVG so it stretches to the card width without distorting stroke
+ * weight, and so it matches the panel borders exactly.
+ *
+ * Hidden when the outputs stack into one column, where a bracket over a
+ * vertical list would read as a sequence rather than a split.
+ */
+function BranchBracket() {
+  return (
+    <div aria-hidden="true" className="hidden @sm:block">
+      <div className="mx-auto h-3 w-px bg-line-strong" />
+      <div className="flex h-3">
+        <div className="flex-1 rounded-tl-md border-t border-l border-line-strong" />
+        <div className="flex-1 rounded-tr-md border-t border-r border-line-strong" />
+      </div>
+    </div>
+  );
+}
+
+/** The two results branching off the mechanistic simulation. */
+function Outputs({ outputs }: { outputs: Output[] }) {
+  return (
+    <div className="@container mt-5">
+      <BranchBracket />
+
+      <ul className="mt-3 grid gap-3 @sm:grid-cols-2">
+        {outputs.map((output) => (
+          <li
+            key={output.id}
+            className="rounded-md border border-line bg-base px-3.5 py-3.5 transition-colors duration-300 hover:border-line-strong"
+          >
+            <span className="text-cyan opacity-70">{output.glyph}</span>
+            <h4 className="mt-3 text-[0.85rem] leading-snug font-medium text-ink">
+              {output.title}
+            </h4>
+            <p className="mt-1.5 text-[0.76rem] leading-relaxed text-muted">
+              {output.detail}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * Where the research is heading — visually secondary by every available
+ * signal: dashed border, recessed surface, smaller type, muted accent, and an
+ * explicit note that it is not implemented.
+ */
+function FutureExtension() {
+  return (
+    <Reveal>
+      <div className="mt-10 rounded-lg border border-dashed border-line bg-surface/40 px-4 py-5 sm:px-6 sm:py-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+          <span className="label text-faint">NEXT EXTENSION</span>
+          <span className="label rounded border border-line px-2 py-1 text-faint/80">
+            RESEARCH DIRECTION
+          </span>
+        </div>
+
+        <div className="mt-6 flex items-start gap-4">
+          <span className="mt-0.5 shrink-0 text-teal opacity-40">
+            {MoleculeGlyph}
+          </span>
+
+          <ol className="min-w-0 list-none">
+            {futureStages.map((stage, i) => (
+              <li key={stage}>
+                <p className="text-[0.8rem] leading-snug text-faint">{stage}</p>
+                {i < futureStages.length - 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="my-2 ml-1 block h-3.5 border-l border-dashed border-line-strong"
+                  />
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <p className="mt-6 border-t border-line-faint pt-4 text-[0.75rem] leading-relaxed text-faint/80">
+          Not part of the current implementation. The model does not presently
+          infer kinetics from molecular structure.
+        </p>
+      </div>
+    </Reveal>
   );
 }
 
@@ -244,6 +369,14 @@ export function ArchitectureDiagram({
                     {stage.detail}
                   </p>
                 </div>
+
+                {/* Terminal stage only: spans the full card so the branch has
+                    room to read as two parallel results. */}
+                {stage.outputs ? (
+                  <div className="col-span-2 sm:col-span-3">
+                    <Outputs outputs={stage.outputs} />
+                  </div>
+                ) : null}
               </article>
             </Reveal>
 
@@ -255,6 +388,8 @@ export function ArchitectureDiagram({
           </li>
         ))}
       </ol>
+
+      <FutureExtension />
     </div>
   );
 }

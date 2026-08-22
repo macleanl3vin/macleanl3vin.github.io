@@ -23,7 +23,7 @@ export const areas: Area[] = [
     title: "AI for Science",
     accent: "violet",
     topics: ["Machine Learning", "Graph Neural Networks", "Scientific ML"],
-    note: "Learning structure-to-parameter maps directly from molecular representations.",
+    note: "Learning bounded, context-dependent adjustments inside mechanistic models.",
     highlight: ["drug", "cyp", "reaction"],
   },
   {

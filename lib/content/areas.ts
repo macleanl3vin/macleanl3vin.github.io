@@ -15,7 +15,7 @@ export interface Area {
 export const areas: Area[] = [
   {
     index: "01",
-    title: "AI for Science",
+    title: "Machine Learning for Science",
     accent: "violet",
     topics: ["Machine Learning", "Graph Neural Networks", "Scientific ML"],
     note: "Learning bounded, context-dependent adjustments inside mechanistic models.",
@@ -33,7 +33,7 @@ export const areas: Area[] = [
   },
   {
     index: "03",
-    title: "Mathematical Modeling",
+    title: "Mechanistic Modeling",
     accent: "cyan",
     topics: ["Differential Equations", "Numerical Methods", "Optimization"],
     note: "Mechanistic systems that stay interpretable and physically constrained.",

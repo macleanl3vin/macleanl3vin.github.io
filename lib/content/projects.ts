@@ -74,7 +74,7 @@ export const projects: Project[] = [
     category: "Computational Pharmacology",
     title: "PharML PK",
     tagline:
-      "Hybrid AI and mechanistic modeling for multi-drug pharmacokinetics.",
+      "Hybrid graph neural network and mechanistic ODE modeling for multi-drug pharmacokinetics and drug–drug interactions.",
     summary:
       "A hybrid graph neural network and mechanistic ODE framework for modeling multi-drug pharmacokinetics and drug–drug interactions.",
     accent: "cyan",
@@ -82,7 +82,7 @@ export const projects: Project[] = [
     status: "Active Research",
     meta: [
       { key: "Model", value: "GNN + ODE" },
-      { key: "Domain", value: "PK / DDI" },
+      { key: "Domain", value: "Computational Pharmacology" },
       { key: "Language", value: "Python" },
       { key: "Year", value: "2026" },
     ],

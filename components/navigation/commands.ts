@@ -20,7 +20,7 @@ export interface Command {
 
 export const primaryNav = [
   { label: "Research", href: "/research" },
-  { label: "Work", href: "/work" },
+  { label: "Experience", href: "/experience" },
   { label: "About", href: "/about" },
   { label: "Notes", href: "/notes" },
 ] as const;
@@ -43,7 +43,7 @@ export function buildCommands(): Command[] {
       hint:
         item.label === "Research"
           ? "Selected research"
-          : item.label === "Work"
+          : item.label === "Experience"
             ? "Experience and capabilities"
             : item.label === "About"
               ? "Background"

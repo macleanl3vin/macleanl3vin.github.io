@@ -1,7 +1,7 @@
-import { HeteroGraph } from "@/components/diagrams/hetero-graph";
-import { ActionLink, Label, Shell } from "@/components/ui/primitives";
-import { Reveal } from "@/components/ui/reveal";
-import { site } from "@/lib/content/site";
+import {HeteroGraph} from "@/components/diagrams/hetero-graph";
+import {ActionLink, Label, Shell} from "@/components/ui/primitives";
+import {Reveal} from "@/components/ui/reveal";
+import {site} from "@/lib/content/site";
 
 /* --------------------------------------------------------------------------
  * Hero.
@@ -20,8 +20,7 @@ export function Hero() {
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "radial-gradient(120% 90% at 50% -10%, transparent 40%, var(--color-base) 82%)",
+            background: "radial-gradient(120% 90% at 50% -10%, transparent 40%, var(--color-base) 82%)",
           }}
         />
         <div
@@ -39,34 +38,25 @@ export function Hero() {
           <div>
             <Reveal>
               <div className="flex items-center gap-3">
-                <span
-                  aria-hidden="true"
-                  className="h-px w-7 shrink-0 bg-cyan/50"
-                />
-                <Label className="label-bright leading-relaxed">
-                  {site.role.toUpperCase()}
-                </Label>
+                <span aria-hidden="true" className="h-px w-7 shrink-0 bg-cyan/50" />
+                <Label className="label-bright leading-relaxed">{site.role.toUpperCase()}</Label>
               </div>
             </Reveal>
 
             <Reveal delay={70}>
-              <h1 className="display mt-7 text-[clamp(2.6rem,7.2vw,4.4rem)] text-ink">
-                {site.name}
-              </h1>
+              <h1 className="display mt-7 text-[clamp(2.6rem,7.2vw,4.4rem)] text-ink">{site.name}</h1>
             </Reveal>
 
             <Reveal delay={130}>
               <p className="display mt-5 max-w-[19ch] text-[clamp(1.4rem,3.3vw,2.05rem)] leading-[1.12] text-muted">
-                Building computational models of{" "}
-                <span className="text-cyan">biological systems.</span>
+                Building computational models of <span className="text-cyan">biological systems.</span>
               </p>
             </Reveal>
 
             <Reveal delay={190}>
               <p className="prose-measure mt-8 text-[0.95rem] leading-relaxed text-muted">
-                Computer scientist working across machine learning, molecular
-                modeling, pharmacokinetics, mathematical simulation, and AI for
-                scientific discovery.
+                Computational researcher working at the intersection of machine learning, pharmacokinetics, molecular representation,
+                and mechanistic modeling.
               </p>
             </Reveal>
 
@@ -77,11 +67,7 @@ export function Hero() {
                   GitHub
                 </ActionLink>
                 {site.links.resume ? (
-                  <ActionLink
-                    href={site.links.resume}
-                    variant="secondary"
-                    external
-                  >
+                  <ActionLink href={site.links.resume} variant="secondary" external>
                     Resume
                   </ActionLink>
                 ) : null}
@@ -91,15 +77,13 @@ export function Hero() {
 
           {/* ---- visualization ------------------------------------------- */}
           <Reveal delay={300} className="lg:-mr-6 xl:-mr-10">
-            <div className="anim-drift" style={{ ["--dur" as string]: "18s" }}>
+            <div className="anim-drift" style={{["--dur" as string]: "18s"}}>
               <HeteroGraph />
             </div>
 
             <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 lg:justify-end">
               <Label className="label-bright">FIG. 00</Label>
-              <span className="text-[0.78rem] text-faint">
-                Heterogeneous disposition graph — illustrative
-              </span>
+              <span className="text-[0.78rem] text-faint">Heterogeneous disposition graph — illustrative</span>
             </div>
           </Reveal>
         </div>

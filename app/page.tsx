@@ -73,7 +73,7 @@ export default function Home() {
           <Experience />
           <Reveal>
             <div className="mt-12 border-t border-line-faint pt-8">
-              <ActionLink href="/work" variant="secondary">
+              <ActionLink href="/experience" variant="secondary">
                 Capabilities and detail
               </ActionLink>
             </div>

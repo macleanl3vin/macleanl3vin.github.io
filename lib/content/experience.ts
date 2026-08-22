@@ -30,7 +30,7 @@ export const timeline: TimelineEntry[] = [
     role: "Computational Drug Discovery Research",
     accent: "cyan",
     summary:
-      "Research at the intersection of machine learning and mechanistic modeling — molecular representation, pharmacokinetic systems, and the numerical methods that connect them.",
+      "Developed a hybrid graph neural network and mechanistic ODE framework for multi-drug pharmacokinetics and drug–drug interaction modeling. Work included heterogeneous biological graph construction, enzyme-mediated metabolism, numerical integration, model training and validation, and scientific software development.",
     tags: ["GNN", "PK / PD", "ODE", "Scientific ML"],
   },
   // TODO(MacLean): add education, prior roles, or teaching here.
@@ -59,7 +59,7 @@ export const highlights: Highlight[] = [
     note: "Concurrent substrates in the multi-drug regime",
   },
   {
-    value: "09",
+    value: "10",
     label: "Biological Node Types",
     accent: "violet",
     note: "Distinct entity classes in the heterogeneous graph",

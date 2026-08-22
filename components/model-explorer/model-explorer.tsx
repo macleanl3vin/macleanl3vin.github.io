@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { HeteroGraph } from "@/components/diagrams/hetero-graph";
-import { ConcentrationPlot, DdiSchematic, type Series } from "@/components/diagrams/plots";
-import { OdePanel } from "./ode-panel";
-import { Label } from "@/components/ui/primitives";
-import { auc, cmax, simulateDdi, type DdiParams } from "@/lib/pk";
+import {useMemo, useRef, useState} from "react";
+import {HeteroGraph} from "@/components/diagrams/hetero-graph";
+import {ConcentrationPlot, DdiSchematic, type Series} from "@/components/diagrams/plots";
+import {OdePanel} from "./ode-panel";
+import {Label} from "@/components/ui/primitives";
+import {auc, cmax, simulateDdi, type DdiParams} from "@/lib/pk";
 
 /* --------------------------------------------------------------------------
  * Model explorer.
@@ -19,10 +19,10 @@ import { auc, cmax, simulateDdi, type DdiParams } from "@/lib/pk";
  * ----------------------------------------------------------------------- */
 
 const TABS = [
-  { id: "graph", label: "GRAPH", note: "Representation" },
-  { id: "ode", label: "ODE", note: "Mechanism" },
-  { id: "pk", label: "PK", note: "Exposure" },
-  { id: "ddi", label: "DDI", note: "Interaction" },
+  {id: "graph", label: "GRAPH", note: "Representation"},
+  {id: "ode", label: "ODE", note: "Mechanism"},
+  {id: "pk", label: "PK", note: "Exposure"},
+  {id: "ddi", label: "DDI", note: "Interaction"},
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -54,7 +54,7 @@ export function ModelExplorer() {
       label: `${dose} mg`,
       accent: accents[i],
       markPeak: dose === 500,
-      points: simulateDdi({ ...BASE, doseA: dose }, 24, 360).victim,
+      points: simulateDdi({...BASE, doseA: dose}, 24, 360).victim,
     }));
   }, []);
 
@@ -68,8 +68,8 @@ export function ModelExplorer() {
 
   /* ---- DDI: victim alone vs victim with a competing substrate ---------- */
   const ddi = useMemo(() => {
-    const alone = simulateDdi({ ...BASE, doseB: 0 }, 24, 480);
-    const withB = simulateDdi({ ...BASE, doseB: 400 }, 24, 480);
+    const alone = simulateDdi({...BASE, doseB: 0}, 24, 480);
+    const withB = simulateDdi({...BASE, doseB: 400}, 24, 480);
 
     const aucAlone = auc(alone.victim);
     const aucWith = auc(withB.victim);
@@ -124,11 +124,7 @@ export function ModelExplorer() {
     <div className="overflow-hidden rounded-xl border border-line bg-surface">
       {/* ---- tab strip -------------------------------------------------- */}
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-line px-4 py-3 sm:px-5">
-        <div
-          role="tablist"
-          aria-label="Model explorer views"
-          className="flex flex-wrap gap-1"
-        >
+        <div role="tablist" aria-label="Model explorer views" className="flex flex-wrap gap-1">
           {TABS.map((t, i) => {
             const selected = tab === t.id;
             return (
@@ -145,9 +141,7 @@ export function ModelExplorer() {
                 onClick={() => setTab(t.id)}
                 onKeyDown={(e) => onTabKeyDown(e, i)}
                 className={`label rounded-md border px-3 py-2 transition-colors duration-300 ${
-                  selected
-                    ? "border-cyan/40 bg-cyan/10 text-cyan"
-                    : "border-transparent text-faint hover:border-line hover:text-muted"
+                  selected ? "border-cyan/40 bg-cyan/10 text-cyan" : "border-transparent text-faint hover:border-line hover:text-muted"
                 }`}
               >
                 {t.label}
@@ -156,9 +150,7 @@ export function ModelExplorer() {
           })}
         </div>
 
-        <Label className="hidden sm:block">
-          {TABS.find((t) => t.id === tab)?.note}
-        </Label>
+        <Label className="hidden sm:block">{TABS.find((t) => t.id === tab)?.note}</Label>
       </div>
 
       {/* ---- panels ------------------------------------------------------ */}
@@ -193,14 +185,10 @@ export function ModelExplorer() {
               <div key={s.label} className="border-t border-line pt-4">
                 <dt className="label">{s.label}</dt>
                 <dd className="tnum mt-3 text-sm text-ink">
-                  AUC {s.auc.toFixed(1)}{" "}
-                  <span className="text-faint">mg·h/L</span>
+                  AUC {s.auc.toFixed(1)} <span className="text-faint">mg·h/L</span>
                 </dd>
                 <dd className="tnum mt-1 text-sm text-muted">
-                  Cmax {s.peak.c.toFixed(2)}{" "}
-                  <span className="text-faint">
-                    mg/L @ {s.peak.t.toFixed(1)} h
-                  </span>
+                  Cmax {s.peak.c.toFixed(2)} <span className="text-faint">mg/L @ {s.peak.t.toFixed(1)} h</span>
                 </dd>
               </div>
             ))}
@@ -225,21 +213,9 @@ export function ModelExplorer() {
           </div>
 
           <dl className="mt-7 grid gap-x-6 gap-y-6 sm:grid-cols-3">
-            <Stat
-              term="AUC Ratio"
-              value={`${ddi.ratio.toFixed(2)}×`}
-              detail="Drug A exposure with vs without Drug B"
-            />
-            <Stat
-              term="Cmax Ratio"
-              value={`${ddi.cmaxRatio.toFixed(2)}×`}
-              detail="Peak concentration shift"
-            />
-            <Stat
-              term="Mechanism"
-              value="Competitive"
-              detail="Apparent Km scaled by (1 + CB / Ki)"
-            />
+            <Stat term="AUC Ratio" value={`${ddi.ratio.toFixed(2)}×`} detail="Drug A exposure with vs without Drug B" />
+            <Stat term="Cmax Ratio" value={`${ddi.cmaxRatio.toFixed(2)}×`} detail="Peak concentration shift" />
+            <Stat term="Mechanism" value="Competitive" detail="Apparent Km scaled by (1 + CB / Ki)" />
           </dl>
 
           <Provenance />
@@ -251,48 +227,24 @@ export function ModelExplorer() {
 
 /* ---- panel scaffolding --------------------------------------------------- */
 
-function Panel({
-  id,
-  active,
-  children,
-}: {
-  id: TabId;
-  active: boolean;
-  children: React.ReactNode;
-}) {
+function Panel({id, active, children}: {id: TabId; active: boolean; children: React.ReactNode}) {
   return (
-    <div
-      role="tabpanel"
-      id={`explorer-panel-${id}`}
-      aria-labelledby={`explorer-tab-${id}`}
-      hidden={!active}
-      tabIndex={0}
-    >
+    <div role="tabpanel" id={`explorer-panel-${id}`} aria-labelledby={`explorer-tab-${id}`} hidden={!active} tabIndex={0}>
       {active ? children : null}
     </div>
   );
 }
 
-function PanelHead({ title, body }: { title: string; body: string }) {
+function PanelHead({title, body}: {title: string; body: string}) {
   return (
     <div>
       <h3 className="text-[1.05rem] font-medium text-ink">{title}</h3>
-      <p className="mt-2.5 max-w-[62ch] text-[0.875rem] leading-relaxed text-muted">
-        {body}
-      </p>
+      <p className="mt-2.5 max-w-[62ch] text-[0.875rem] leading-relaxed text-muted">{body}</p>
     </div>
   );
 }
 
-function Stat({
-  term,
-  value,
-  detail,
-}: {
-  term: string;
-  value: string;
-  detail: string;
-}) {
+function Stat({term, value, detail}: {term: string; value: string; detail: string}) {
   return (
     <div className="border-t border-line pt-4">
       <dt className="label">{term}</dt>
@@ -306,8 +258,7 @@ function Stat({
 function Provenance() {
   return (
     <p className="label mt-7 border-t border-line-faint pt-5 leading-relaxed text-faint">
-      Illustrative parameters · numerically integrated in-browser (RK4) ·
-      not clinical data
+      Illustrative parameters · numerically integrated in-browser (RK4) · not clinical data
     </p>
   );
 }

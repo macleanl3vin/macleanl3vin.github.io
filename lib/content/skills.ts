@@ -18,11 +18,11 @@ export const skillGroups: SkillGroup[] = [
     domain: "Computation",
     accent: "violet",
     items: [
-      "Python",
-      "PyTorch",
+      "Python & PyTorch",
+      "Graph Neural Networks (PyTorch Geometric)",
       "Machine Learning",
-      "Graph Neural Networks",
-      "NumPy / SciPy",
+      "RDKit / Molecular Fingerprints",
+      "NumPy / SciPy / pandas / Matplotlib",
     ],
   },
   {
@@ -31,7 +31,7 @@ export const skillGroups: SkillGroup[] = [
     accent: "cyan",
     items: [
       "Ordinary Differential Equations",
-      "Numerical Integration",
+      "Differentiable Numerical Integration",
       "Optimization",
       "Scientific Computing",
       "Parameter Estimation",
@@ -53,6 +53,6 @@ export const skillGroups: SkillGroup[] = [
     index: "04",
     domain: "Software",
     accent: "cyan",
-    items: ["Git", "Databases", "APIs", "Web Systems", "Java"],
+    items: ["Git", "Databases", "APIs", "Web Systems"],
   },
 ];

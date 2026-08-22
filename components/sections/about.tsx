@@ -1,7 +1,7 @@
-import { accentVar } from "@/lib/accent";
-import type { Accent } from "@/lib/content/areas";
-import { Label } from "@/components/ui/primitives";
-import { Reveal } from "@/components/ui/reveal";
+import {accentVar} from "@/lib/accent";
+import type {Accent} from "@/lib/content/areas";
+import {Label} from "@/components/ui/primitives";
+import {Reveal} from "@/components/ui/reveal";
 
 /* --------------------------------------------------------------------------
  * Interdisciplinary identity.
@@ -46,13 +46,11 @@ export function AboutColumns() {
           <div className="group h-full px-0 py-9 md:px-7 md:py-10">
             <div className="flex items-baseline gap-3">
               <Label className="tnum">
-                <span style={{ color: accentVar[d.accent] }}>{d.index}</span>
+                <span style={{color: accentVar[d.accent]}}>{d.index}</span>
               </Label>
               <h3 className="text-[1rem] font-medium text-ink">{d.name}</h3>
             </div>
-            <p className="mt-5 max-w-[40ch] text-[0.875rem] leading-relaxed text-muted">
-              {d.body}
-            </p>
+            <p className="mt-5 max-w-[40ch] text-[0.875rem] leading-relaxed text-muted">{d.body}</p>
           </div>
         </Reveal>
       ))}
@@ -64,10 +62,8 @@ export function AboutStatement() {
   return (
     <Reveal>
       <p className="max-w-[46ch] text-[clamp(1.15rem,2.6vw,1.6rem)] leading-snug text-muted">
-        My work focuses on combining machine learning with{" "}
-        <span className="text-teal">mechanistic mathematical models</span> to
-        study complex biological and molecular systems — keeping what the
-        equations already know, and learning the rest.
+        My work focuses on combining machine learning with <span className="text-teal">mechanistic mathematical models</span> to study
+        complex biological and molecular systems — keeping what the equations already know, and learning the rest.
       </p>
     </Reveal>
   );

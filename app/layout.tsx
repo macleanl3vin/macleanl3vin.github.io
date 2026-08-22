@@ -1,10 +1,10 @@
-import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import type {Metadata, Viewport} from "next";
+import {Inter, JetBrains_Mono} from "next/font/google";
 import "./globals.css";
-import { Nav } from "@/components/navigation/nav";
-import { Footer } from "@/components/footer/footer";
-import { REVEAL_ARM_SCRIPT } from "@/components/ui/reveal";
-import { site } from "@/lib/content/site";
+import {Nav} from "@/components/navigation/nav";
+import {Footer} from "@/components/footer/footer";
+import {REVEAL_ARM_SCRIPT} from "@/components/ui/reveal";
+import {site} from "@/lib/content/site";
 
 /* Modern neutral grotesk for everything, monospace for scientific annotation. */
 const inter = Inter({
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: `%s — ${site.name}`,
   },
   description: site.description,
-  authors: [{ name: site.name }],
+  authors: [{name: site.name}],
   keywords: [
     "computational drug discovery",
     "AI for science",
@@ -53,24 +53,18 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (
     // `suppressHydrationWarning` covers only this element's own attributes:
     // the inline script below stamps `data-reveal-ready` on <html> before
     // hydration, which React would otherwise report as a mismatch.
-    <html
-      lang="en"
-      className={`${inter.variable} ${mono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${inter.variable} ${mono.variable}`} suppressHydrationWarning>
       <body className="antialiased">
         {/* Arms scroll-reveal before the rest of the body parses — see
             components/ui/reveal.tsx. Kept as the first body child rather than
             in <head>, so it does not participate in React's head hoisting.
             Static string, no interpolation. */}
-        <script dangerouslySetInnerHTML={{ __html: REVEAL_ARM_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{__html: REVEAL_ARM_SCRIPT}} />
         <Nav />
         <main id="main">{children}</main>
         <Footer />

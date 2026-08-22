@@ -101,7 +101,7 @@ export default function AboutPage() {
             <Reveal delay={140}>
               <HeteroGraph variant="interactive" />
               <p className="label mt-6 border-t border-line-faint pt-5 leading-relaxed">
-                FIG. 01 — Typed representation of a dosing regimen. Illustrative.
+                FIG. 01 — Typed entity and relation schema.
               </p>
             </Reveal>
           </div>

@@ -150,8 +150,9 @@ export const projects: Project[] = [
           {
             kind: "prose",
             paragraphs: [
-              "The system is represented as a heterogeneous graph. Rather than a single molecular graph, nodes carry distinct types — patient, administration event, drug, reaction, enzyme, metabolite, compartment — and edges carry the relation between them. A drug node connects to a reaction it undergoes; that reaction connects to the enzyme that catalyzes it and to the metabolite it produces.",
-              "Message passing runs over this typed structure with relation-specific transformations, so an edge representing catalysis is not treated the same way as an edge representing distribution into a compartment.",
+              "The system is represented as a heterogeneous graph. Rather than a single molecular graph, nodes carry distinct types — patient, administration event, drug, enzyme, reaction, metabolite, physiological compartment and clinical outcome — and edges carry the relation between them. A patient reaches a drug through an administration event; the drug enters a reaction that an enzyme catalyzes; the reaction yields a metabolite and exchanges with a compartment.",
+              "Message passing runs over this typed structure with relation-specific transformations. Nodes and relations retain their biological roles throughout, so catalysis, metabolism, administration and distribution are each propagated differently rather than collapsed into one generic edge.",
+              "Concentration over time is deliberately not a node here. A trajectory is a state of the mechanistic system downstream, not an entity in the biological graph — keeping that boundary sharp is what lets the representation stay reusable across regimens.",
               "Readout produces bounded reaction and disposition factors — multiplicative adjustments constrained to a plausible range, applied to the reaction, clearance, absorption and disposition terms the mechanistic system already defines. The network shifts those terms within limits; it does not originate them, and it cannot move them somewhere the mechanism does not permit.",
             ],
           },
@@ -160,7 +161,7 @@ export const projects: Project[] = [
             figure: "hetero-graph",
             number: "02",
             caption:
-              "Heterogeneous molecular interaction graph — node types and relations.",
+              "Heterogeneous biological graph — typed entity classes and the relations between them.",
           },
         ],
       },

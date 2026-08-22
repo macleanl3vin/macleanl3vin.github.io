@@ -4,9 +4,12 @@ import { useId, useMemo, useState } from "react";
 import {
   graphEdges,
   graphNodes,
-  kindAccent,
-  nodeKindLabel,
-  nodeKindOrder,
+  nodeAccent,
+  nodeLabel,
+  relationAccent,
+  relationDash,
+  relationLabel,
+  relationSchema,
   type GraphNode,
 } from "@/lib/content/graph";
 import { accentVar } from "@/lib/accent";
@@ -15,10 +18,11 @@ import { Label } from "@/components/ui/primitives";
 /* --------------------------------------------------------------------------
  * Heterogeneous biological graph.
  *
- * Authoring coordinates live in a 0–100 space (lib/content/graph.ts) and are
- * projected into the viewBox here, so layout is resolution-independent and
- * the same data drives both the ambient hero visual and the interactive
- * explorer view.
+ * Draws the generalized typed schema from lib/content/graph.ts: biologically
+ * typed entity classes and the relations between them. Authoring coordinates
+ * live in a 0–100 space and are projected into the viewBox here, so layout is
+ * resolution-independent and the same data drives both the ambient hero visual
+ * and the interactive explorer view.
  * ----------------------------------------------------------------------- */
 
 const VB_W = 1000;
@@ -29,8 +33,12 @@ const px = (x: number) => INSET.l + (x / 100) * (VB_W - INSET.l - INSET.r);
 const py = (y: number) => INSET.t + (y / 100) * (VB_H - INSET.t - INSET.b);
 const pr = (r: number) => r * 2.15;
 
-/** Gentle arc between two nodes, trimmed to sit outside both node radii. */
-function edgeGeometry(a: GraphNode, b: GraphNode) {
+/**
+ * Gentle arc between two nodes, trimmed to sit outside both node radii.
+ * `startMarker` widens the leading gap so a start arrowhead does not collide
+ * with the source node.
+ */
+function edgeGeometry(a: GraphNode, b: GraphNode, startMarker = false) {
   const x1 = px(a.x);
   const y1 = py(a.y);
   const x2 = px(b.x);
@@ -43,7 +51,7 @@ function edgeGeometry(a: GraphNode, b: GraphNode) {
   const uy = dy / len;
 
   // Trim so the line stops just short of each node's circle.
-  const startGap = pr(a.r) + 7;
+  const startGap = pr(a.r) + (startMarker ? 10 : 7);
   const endGap = pr(b.r) + 10;
   const sx = x1 + ux * startGap;
   const sy = y1 + uy * startGap;
@@ -118,7 +126,7 @@ export function HeteroGraph({
         viewBox={`0 0 ${VB_W} ${VB_H}`}
         className="h-auto w-full overflow-visible"
         role="img"
-        aria-label="Heterogeneous biological graph linking a patient, an administered drug, a metabolizing enzyme, a reaction, its metabolites, plasma compartment and clinical output."
+        aria-label="Heterogeneous biological graph schema. A patient connects through an administration event to a drug; the drug enters a reaction which an enzyme catalyses; the reaction produces a metabolite and exchanges with a physiological compartment; the metabolite leads to a clinical outcome."
       >
         <defs>
           <marker
@@ -141,7 +149,7 @@ export function HeteroGraph({
             const b = byId.get(edge.to);
             if (!a || !b) return null;
 
-            const { path, approxLen } = edgeGeometry(a, b);
+            const { path, approxLen } = edgeGeometry(a, b, edge.bidirectional);
             const dim = edgeDim(edge.from, edge.to);
             const lit = Boolean(emphasis) && !dim;
 
@@ -158,8 +166,12 @@ export function HeteroGraph({
                   fill="none"
                   stroke={lit ? "var(--color-line-strong)" : "var(--color-line)"}
                   strokeWidth={lit ? 1.7 : 1.3}
-                  strokeDasharray={edge.dashed ? "5 6" : undefined}
+                  strokeDasharray={relationDash[edge.relation]}
                   markerEnd={`url(#arrow-${uid})`}
+                  // Exchange relations carry an arrowhead at both ends.
+                  markerStart={
+                    edge.bidirectional ? `url(#arrow-${uid})` : undefined
+                  }
                   color={lit ? "var(--color-line-strong)" : "var(--color-line)"}
                   style={{ transition: "stroke 420ms, stroke-width 420ms" }}
                 />
@@ -170,7 +182,7 @@ export function HeteroGraph({
                     className="anim-pulse-edge"
                     d={path}
                     fill="none"
-                    stroke={accentVar[b.accent]}
+                    stroke={accentVar[nodeAccent(b)]}
                     strokeWidth="1.9"
                     strokeLinecap="round"
                     style={
@@ -196,14 +208,16 @@ export function HeteroGraph({
             const r = pr(node.r);
             const dim = isDim(node.id);
             const lit = Boolean(emphasis) && !dim;
-            const color = accentVar[node.accent];
+            const color = accentVar[nodeAccent(node)];
+
+            const label = nodeLabel(node);
 
             return (
               <g
                 key={node.id}
-                // Tier-2 nodes are dropped on narrow viewports to keep the
-                // mobile graph legible rather than hiding it entirely.
-                className={node.tier === 2 ? "hidden sm:inline" : undefined}
+                // Every node is a distinct entity class in the schema, so none
+                // can be dropped on narrow viewports without breaking it. The
+                // label type scale compensates instead — see .graph-label.
                 style={{
                   transition: "opacity 420ms cubic-bezier(0.22,1,0.36,1)",
                   opacity: dim ? 0.26 : 1,
@@ -220,7 +234,7 @@ export function HeteroGraph({
                     fill="transparent"
                     tabIndex={0}
                     role="button"
-                    aria-label={`${node.label} — ${nodeKindLabel[node.kind]}`}
+                    aria-label={`${label} — ${node.note}`}
                     onFocus={() => setActive(node.id)}
                     onBlur={() => setActive(null)}
                     style={{ cursor: "pointer", outlineOffset: 0 }}
@@ -265,37 +279,42 @@ export function HeteroGraph({
                   style={{ transition: "opacity 420ms" }}
                 />
 
-                {/* Label */}
+                {/* Label — the node's entity type, one tspan per line so long
+                    type names stay legible instead of overrunning neighbours. */}
                 <text
+                  className="graph-label"
                   x={cx}
                   y={cy + r + 26}
                   textAnchor="middle"
                   fill={lit ? "var(--color-ink)" : "var(--color-muted)"}
                   style={{
                     fontFamily: "var(--font-mono)",
-                    fontSize: 19,
                     letterSpacing: "0.1em",
                     transition: "fill 420ms",
                   }}
                 >
-                  {node.label.toUpperCase()}
+                  {node.lines.map((line, li) => (
+                    <tspan key={line} x={cx} dy={li === 0 ? 0 : 21}>
+                      {line.toUpperCase()}
+                    </tspan>
+                  ))}
                 </text>
 
-                {/* Type annotation, only when the node is the focus. */}
+                {/* Role annotation, only while the node is the focus. */}
                 <text
+                  className="graph-note"
                   x={cx}
-                  y={cy + r + 45}
+                  y={cy + r + 26 + node.lines.length * 21}
                   textAnchor="middle"
                   fill="var(--color-faint)"
                   opacity={active === node.id ? 1 : 0}
                   style={{
                     fontFamily: "var(--font-mono)",
-                    fontSize: 15,
-                    letterSpacing: "0.12em",
+                    letterSpacing: "0.08em",
                     transition: "opacity 300ms",
                   }}
                 >
-                  {nodeKindLabel[node.kind].toUpperCase()}
+                  {node.note}
                 </text>
               </g>
             );
@@ -305,27 +324,37 @@ export function HeteroGraph({
 
       {interactive && (
         <>
-          {/* Legend doubles as the accessible, non-hover description. */}
-          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-3 border-t border-line-faint pt-6">
-            {nodeKindOrder.map((kind) => (
-              <li key={kind} className="flex items-center gap-2">
+          {/* Typed relation schema. Since every node is now labelled by its
+              entity class, a node-type legend would only repeat the diagram;
+              naming the relations carries the information the diagram cannot,
+              and doubles as the accessible non-hover description. */}
+          <dl className="mt-6 grid gap-x-8 gap-y-4 border-t border-line-faint pt-6 sm:grid-cols-2">
+            {relationSchema.map(({ relation, chain }) => (
+              <div key={relation} className="flex items-baseline gap-2.5">
                 <span
                   aria-hidden="true"
-                  className="size-1.5 rounded-full"
-                  style={{ background: accentVar[kindAccent[kind]] }}
+                  className="mt-1.5 size-1.5 shrink-0 rounded-full"
+                  style={{ background: accentVar[relationAccent[relation]] }}
                 />
-                <Label>{nodeKindLabel[kind]}</Label>
-              </li>
+                <div className="min-w-0">
+                  <dt>
+                    <Label>{relationLabel[relation]}</Label>
+                  </dt>
+                  <dd className="mt-1.5 font-mono text-[0.72rem] leading-relaxed text-muted">
+                    {chain}
+                  </dd>
+                </div>
+              </div>
             ))}
-          </ul>
+          </dl>
 
           <p
             aria-live="polite"
-            className="mt-5 min-h-[1.25rem] text-[0.8rem] text-muted"
+            className="mt-6 min-h-[1.25rem] text-[0.8rem] text-muted"
           >
             {activeNode
-              ? `${activeNode.label} · ${nodeKindLabel[activeNode.kind]}`
-              : "Focus a node to inspect its type and neighbourhood."}
+              ? `${nodeLabel(activeNode)} · ${activeNode.note}`
+              : "Focus a node to inspect its role and neighbourhood."}
           </p>
         </>
       )}

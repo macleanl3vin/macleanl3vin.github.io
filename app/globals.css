@@ -180,6 +180,31 @@ body {
 }
 
 /* ==========================================================================
+   GRAPH LABELS
+   Sizes are in SVG user units, so they scale with the viewBox. Every node in
+   the schema is load-bearing and none can be dropped on a phone; the type
+   scale grows instead, keeping labels legible as the drawing shrinks.
+   ========================================================================== */
+
+.graph-label {
+  font-size: 19px;
+}
+
+.graph-note {
+  font-size: 15px;
+}
+
+@media (max-width: 640px) {
+  .graph-label {
+    font-size: 29px;
+  }
+
+  .graph-note {
+    font-size: 23px;
+  }
+}
+
+/* ==========================================================================
    DIAGRAM ANIMATION
    Long, slow, low-amplitude. Everything here is decorative: with motion
    disabled the diagrams still render in their complete, final state.

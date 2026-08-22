@@ -167,7 +167,7 @@ export function ModelExplorer() {
         <Panel id="graph" active={tab === "graph"}>
           <PanelHead
             title="Heterogeneous representation"
-            body="Entities are typed — patient, dose, drug, enzyme, reaction, metabolite, compartment — and so are the relations between them. Message passing respects those types, so catalysis is not treated like distribution."
+            body="Entities are typed — patient, administration event, drug, enzyme, reaction, metabolite, physiological compartment and clinical outcome — and so are the relations between them. Nodes and relations retain their biological roles during message passing, distinguishing relationships such as catalysis, metabolism, administration, and distribution."
           />
           <HeteroGraph variant="interactive" className="mt-7" />
         </Panel>

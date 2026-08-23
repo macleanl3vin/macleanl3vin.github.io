@@ -67,13 +67,6 @@ export function Footer() {
             </ul>
           </div>
         </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t border-line-faint py-7">
-          <Label>
-            {site.location} / {site.year}
-          </Label>
-          <Label>BUILT WITH NEXT.JS · NO TRACKERS</Label>
-        </div>
       </Shell>
     </footer>
   );
